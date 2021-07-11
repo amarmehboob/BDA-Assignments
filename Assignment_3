@@ -1,0 +1,62 @@
+import datetime, json, csv
+from functools import reduce
+from datetime import date
+
+current_date = datetime.date.today()
+
+My_Dict = {
+    'person1': {'name': 'Abdul Rafay', 'age': 22, 'interest': ['football', 'cricket'],
+                'amount_deposited': [24000, 26000]},
+    'person2': {'name': 'Nancy James', 'age': 23, 'interest': ['baseball', 'cricket'],
+                'amount_deposited': [24000, 27000]},
+    'person3': {'name': 'Selena Gomez', 'age': 26, 'interest': ['baseball', 'table tennis'],
+                'amount_deposited': [24000, 28000]},
+}
+def process(My_Dict):
+    criteria_match = [chr(i) for i in range(97, 104)]
+    criteria_match = tuple(criteria_match)
+
+    filter_data = [chr(x) for x in [107, 109, 115]]
+    filter_data = tuple(filter_data)
+
+    final_filter = list(filter(lambda x: x[1]["name"][0].lower() not in (filter_data), My_Dict.items()))
+    My_Dict = dict(final_filter)
+
+    mapping = list(map(lambda x: "Mr. " + x if str(x).lower().startswith(criteria_match) else "Ms. " + x,[My_Dict[x]['name'] for x in My_Dict]))
+
+    age_calculate = list(map(lambda y: (date.today().year) - y, [My_Dict[i]['age'] for i in My_Dict]))
+
+    deposit_sum = reduce(lambda x, y: x + y, (My_Dict[i]['amount_deposited'] for i in My_Dict))
+
+    i = 0
+    for x in My_Dict:
+        My_Dict[x]['name'] = mapping[i]
+        My_Dict[x]['year'] = age_calculate[i]
+        My_Dict[x]['amount_deposited'] = deposit_sum[i]
+        i = 1 + i
+    return My_Dict
+
+def main():
+
+    datafile = process(My_Dict)
+    final = {'Date': current_date.strftime('%d-%b-%Y'), 'Data': datafile}
+
+    with open('names.json', 'w') as file:
+        json.dump(final, file, indent=2, sort_keys=False)
+        print('The Json file has been saved')
+
+
+    for key, value in datafile.items():
+        pass
+
+    csvfile = open("names.csv", "w")
+    writer = csv.writer(csvfile)
+    for key, value in datafile.items():
+        writer.writerow([key, value])
+
+    csvfile.close()
+    print('The CSV file has been saved')
+
+
+if __name__ == '__main__':
+    main()
